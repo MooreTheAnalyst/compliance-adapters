@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: compliance-primitives repo
+    url: https://github.com/stellar-compliance-kit/compliance-primitives
+    about: Issues with the underlying Soroban contracts belong in that repo, not here.
