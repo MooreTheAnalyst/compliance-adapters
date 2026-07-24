@@ -75,6 +75,17 @@ existing account list — the CLI takes it as a plain file for simplicity):
 ]
 ```
 
+### Insomnia Collection
+
+For a complete interactive reference of the sync script's CLI flags and
+expected JSON input format, import [`insomnia_collection.json`](./insomnia_collection.json)
+into [Insomnia](https://insomnia.rest/) or another API client. The collection includes:
+
+- **Dry-run example** — Check addresses without submitting transactions
+- **Live sync example** — Submit transactions to a Soroban contract
+- **JSON schema documentation** — Expected addresses file format
+- **CLI flags reference** — Complete parameter documentation
+
 ### Dry-run against testnet (no transactions submitted)
 
 ```sh
