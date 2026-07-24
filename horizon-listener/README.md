@@ -78,6 +78,19 @@ process manager would be responsible for restarting the process.
 Individual `onEvent` handler errors are caught and logged without stopping
 the polling loop, so one bad event doesn't take down the whole listener.
 
+## Logging
+
+All logging is routed through an injectable `Logger` interface with a default
+console-backed implementation. Log levels are used semantically:
+
+- **debug** — Cursor advancement and other low-level operational details
+- **info** — Successful event reception (one log per event received)
+- **warn** — Recoverable poll failures with automatic retry (e.g., RPC unreachable, rate-limited)
+- **error** — Handler errors and critical listener failures
+
+Pass a custom `Logger` instance to `HorizonListener` options to customize
+output (e.g., to route to a production logging service).
+
 ## Links
 
 - [Root README](../README.md)
