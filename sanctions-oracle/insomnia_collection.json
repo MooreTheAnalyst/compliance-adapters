@@ -1,0 +1,67 @@
+{
+  "_type": "export",
+  "exportFormat": 4,
+  "exportDate": "2026-07-24T00:00:00.000Z",
+  "exportSource": "insomnia.desktop.app:v10.0.0",
+  "resources": [
+    {
+      "_id": "wrk_sanctions_oracle_sync",
+      "_type": "workspace",
+      "name": "Sanctions Oracle Sync Script",
+      "description": "Documentation and examples for the sanctions-oracle sync script CLI",
+      "scope": "design"
+    },
+    {
+      "_id": "req_dry_run_example",
+      "_type": "request",
+      "parentId": "wrk_sanctions_oracle_sync",
+      "name": "[CLI] Dry-run against testnet",
+      "description": "Dry-run invocation that checks addresses without submitting transactions. Useful for testing the sync logic without network interaction.",
+      "method": "POST",
+      "url": "{{ base_url }}",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"command\": \"npm run sanctions-sync\",\n  \"args\": [\n    \"node\",\n    \"dist/sync.js\",\n    \"--addresses\",\n    \"./test/fixtures/addresses.json\",\n    \"--dry-run\"\n  ],\n  \"description\": \"Runs the sanctions sync script in dry-run mode (no transactions submitted)\",\n  \"expectedOutput\": {\n    \"checked\": 3,\n    \"flagged\": [\"GHBRPOIGF3CBFNOBM2O4RAK3VRJNVGFYGWWQC5HYFSXMECOSFOGYR5XK\"],\n    \"written\": [],\n    \"dryRun\": true\n  }\n}\n"
+      }
+    },
+    {
+      "_id": "req_live_sync_example",
+      "_type": "request",
+      "parentId": "wrk_sanctions_oracle_sync",
+      "name": "[CLI] Live sync to testnet",
+      "description": "Live invocation that submits transactions to a Soroban contract. Requires valid network credentials.",
+      "method": "POST",
+      "url": "{{ base_url }}",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"command\": \"npm run sanctions-sync\",\n  \"args\": [\n    \"node\",\n    \"dist/sync.js\",\n    \"--addresses\",\n    \"./test/fixtures/addresses.json\",\n    \"--contract-id\",\n    \"CABCDEF...\",\n    \"--rpc-url\",\n    \"https://soroban-testnet.stellar.org\",\n    \"--network-passphrase\",\n    \"Test SDF Network ; September 2015\",\n    \"--secret-key\",\n    \"SABCDEF...\"\n  ],\n  \"description\": \"Runs the sanctions sync script in live mode (submits transactions)\",\n  \"notes\": \"Requires:\",\n  \"required_flags\": [\n    \"--addresses (path to JSON array of addresses)\",\n    \"--contract-id (deployed denylist-gate contract ID)\",\n    \"--rpc-url (Soroban RPC endpoint)\",\n    \"--network-passphrase (matching the RPC endpoint's network)\",\n    \"--secret-key (funding account secret key, must have XLM balance)\"\n  ],\n  \"expectedOutput\": {\n    \"checked\": 3,\n    \"flagged\": [\"GHBRPOIGF3CBFNOBM2O4RAK3VRJNVGFYGWWQC5HYFSXMECOSFOGYR5XK\"],\n    \"written\": [\"GHBRPOIGF3CBFNOBM2O4RAK3VRJNVGFYGWWQC5HYFSXMECOSFOGYR5XK\"],\n    \"dryRun\": false\n  }\n}\n"
+      }
+    },
+    {
+      "_id": "req_addresses_json_shape",
+      "_type": "request",
+      "parentId": "wrk_sanctions_oracle_sync",
+      "name": "[Schema] Expected addresses JSON file",
+      "description": "The JSON file format expected by the --addresses flag. Should be an array of valid Stellar addresses (public keys).",
+      "method": "GET",
+      "url": "{{ base_url }}",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"description\": \"Expected JSON structure for --addresses flag\",\n  \"fileFormat\": \"JSON array of Stellar public key addresses\",\n  \"example\": [\n    \"GHBRPOIGF3CBFNOBM2O4RAK3VRJNVGFYGWWQC5HYFSXMECOSFOGYR5XK\",\n    \"GXWNREKPK5YROUDOCUZRENUN7Z5JQIPQ3ZXOI7FDHJK3EYY5QAHRVHS3\",\n    \"GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUV2\"\n  ],\n  \"notes\": [\n    \"Each entry must be a valid 56-character Stellar public key (G prefix)\",\n    \"Duplicates are allowed; they will be checked individually\",\n    \"Invalid addresses will cause the script to fail with a clear error\",\n    \"See test/fixtures/addresses.json for a real example\"\n  ],\n  \"mockProviderBehavior\": {\n    \"description\": \"The MockSanctionsProvider flags the first address in the example list\",\n    \"flaggedAddresses\": [\"GHBRPOIGF3CBFNOBM2O4RAK3VRJNVGFYGWWQC5HYFSXMECOSFOGYR5XK\"]\n  }\n}\n"
+      }
+    },
+    {
+      "_id": "req_cli_flags_reference",
+      "_type": "request",
+      "parentId": "wrk_sanctions_oracle_sync",
+      "name": "[Reference] CLI flags documentation",
+      "description": "Complete reference of all CLI flags accepted by the sync script.",
+      "method": "GET",
+      "url": "{{ base_url }}",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"description\": \"CLI flags for node dist/sync.js\",\n  \"flags\": [\n    {\n      \"name\": \"--addresses\",\n      \"type\": \"string (file path)\",\n      \"required\": true,\n      \"description\": \"Path to JSON file containing array of Stellar addresses to check\",\n      \"example\": \"--addresses ./addresses.json\"\n    },\n    {\n      \"name\": \"--dry-run\",\n      \"type\": \"boolean flag\",\n      \"required\": false,\n      \"description\": \"Run in dry-run mode (check addresses, log planned actions, do not submit transactions)\",\n      \"example\": \"--dry-run\",\n      \"default\": \"false\"\n    },\n    {\n      \"name\": \"--contract-id\",\n      \"type\": \"string (contract address)\",\n      \"required\": \"if not using --dry-run\",\n      \"description\": \"Soroban contract ID (denylist-gate) to submit transactions to\",\n      \"example\": \"--contract-id CABCDEF...\"\n    },\n    {\n      \"name\": \"--rpc-url\",\n      \"type\": \"string (URL)\",\n      \"required\": \"if not using --dry-run\",\n      \"description\": \"Soroban RPC endpoint URL\",\n      \"example\": \"--rpc-url https://soroban-testnet.stellar.org\"\n    },\n    {\n      \"name\": \"--network-passphrase\",\n      \"type\": \"string\",\n      \"required\": \"if not using --dry-run\",\n      \"description\": \"Network passphrase (must match the network of the RPC endpoint)\",\n      \"example\": \"--network-passphrase 'Test SDF Network ; September 2015'\",\n      \"commonValues\": [\n        \"Test SDF Network ; September 2015 (testnet)\",\n        \"Public Global Stellar Network ; September 2015 (mainnet)\"\n      ]\n    },\n    {\n      \"name\": \"--secret-key\",\n      \"type\": \"string (secret key)\",\n      \"required\": \"if not using --dry-run\",\n      \"description\": \"Stellar secret key (starts with 'S') for the account that will fund and sign transactions. Must have XLM balance to cover fees.\",\n      \"example\": \"--secret-key SABCDEF...\",\n      \"security\": \"NEVER commit or log this value. Use environment variables in production.\"\n    }\n  ],\n  \"exitCodes\": [\n    {\n      \"code\": 0,\n      \"meaning\": \"Success\"\n    },\n    {\n      \"code\": 1,\n      \"meaning\": \"Error (missing required flags, invalid JSON, network error, etc.)\"\n    }\n  ]\n}\n"
+      }
+    }
+  ]
+}
